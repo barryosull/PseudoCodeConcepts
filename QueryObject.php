@@ -9,7 +9,12 @@ interface iQueryAbleService
 interface iQuery 
 {
 
+}
 
+interface iJobSeekerQuery extends iQueryAbleService 
+{
+    /** @return iJobseekerQueryResult */
+    public function query(iQuery $query);
 }
 
 interface iQueryResult
@@ -27,13 +32,17 @@ interface iQueryResult
      * @return iQueryResult
      */
     public function sort_by($field, $order);
-
-    /** @return iViewEntry[]*/
-    public function get_all();
     
     /** @return integer */
     public function count();
 }
+
+interface iJobseekerQueryResult extends iQueryResult
+{
+    /** @return JobSeekerViewEntry[] */
+    public function get_all();
+}
+
 
 class EloquentResultSet implements iQueryResult{
     
@@ -41,7 +50,6 @@ class EloquentResultSet implements iQueryResult{
         return 1;
     }
 
-    
     public function get_all() {
         return [ new stdClass(), new stdClass()];
     }
@@ -57,34 +65,30 @@ class EloquentResultSet implements iQueryResult{
 
 interface iViewEntry
 {
-    public function field_count();
+
 }
 
-class JobseekerViewEntry implements iViewEntry
+class JobSeekerViewEntry implements iViewEntry
 {
     public $name;
     public $age;
-    
-    public function field_count()
-    {
-        return 2;
-    }
 }
 
 class ResultSetIterator
 {
-    public function interate()
+    public function interate(iJobseekerQueryResult $set)
     {
-        $full_set = new EloquentResultSet();
-        
-        $set = $full_set->sort_by('field', 'desc')
+        $set = $set->sort_by('field', 'desc')
             ->limit_result_set(10, 20);
-        
         $rows = $set->get_all();
-        
         foreach($rows as $row) {
-            echo $row->field_count();
+            ;
         }
     }
 }
+
+/** TODO: 
+ * Figure out some way that we can return the result object as a PDO, in some way that the IDE can understand it
+ * It's proving tricky
+ */
 
